@@ -1,20 +1,42 @@
+/* General Resets */
 body {
   margin: 0;
-  background: linear-gradient(180deg, rgb(117, 81, 194), rgb(255, 255, 255));
+  background-color: rgb(40, 40, 40) !important; /* Ensure slate gray background */
+  color: rgb(230, 230, 230); /* Light gray text for contrast */
   display: flex;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   height: 100vh;
   width: 100vw;
   justify-content: center;
   align-items: center;
+  overflow: hidden; /* Prevent unwanted scrolling */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
+/* Main Container */
 main {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  max-width: 700px;
+  width: 100%;
+  padding: 20px;
+  background-color: rgb(50, 50, 50); /* Slightly lighter gray box */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Subtle shadow for elevation */
+  color: rgb(230, 230, 230); /* Light gray text */
 }
 
+/* Section Titles */
+h1, h2, h3 {
+  margin: 0 0 10px;
+  color: rgb(200, 200, 200); /* Subtle lighter gray */
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/* Buttons */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -22,19 +44,53 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: rgb(60, 90, 140); /* Muted blue button */
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s ease-in-out;
   color: white;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle button shadow */
 }
 
+button:hover {
+  background-color: rgb(70, 110, 160); /* Slightly brighter blue on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Elevated hover shadow */
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid rgb(70, 110, 160); /* Blue focus ring */
+  outline-offset: 2px;
+}
+
+button:disabled {
+  background-color: rgba(60, 90, 140, 0.5); /* Muted blue */
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Inputs (e.g., Textareas) */
+textarea,
+input {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  color: rgb(230, 230, 230); /* Light text */
+  background-color: rgb(60, 60, 60); /* Slightly lighter gray */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+  border-radius: 8px;
+  margin-bottom: 15px;
+  transition: border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+  border-color: rgb(70, 110, 160); /* Muted blue */
+  box-shadow: 0 0 8px rgba(70, 110, 160, 0.5); /* Glowing effect */
+}
+
+/* List Container */
 ul {
   padding-inline-start: 0;
   margin-block-start: 0;
@@ -42,24 +98,61 @@ ul {
   list-style-type: none;
   display: flex;
   flex-direction: column;
-  margin: 8px 0;
-  border: 1px solid black;
   gap: 1px;
-  background-color: black;
+  margin: 8px 0;
+  background-color: rgb(50, 50, 50); /* Matches main background */
   border-radius: 8px;
   overflow: auto;
+  max-height: 300px; /* Scrollable list if content overflows */
+  scrollbar-width: thin; /* Slim scrollbars */
+  scrollbar-color: rgb(70, 110, 160) rgba(255, 255, 255, 0.1);
+}
+
+ul::-webkit-scrollbar {
+  width: 8px;
+}
+
+ul::-webkit-scrollbar-thumb {
+  background-color: rgb(70, 110, 160); /* Blue scrollbar */
+  border-radius: 4px;
+}
+
+ul::-webkit-scrollbar-track {
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle track */
 }
 
 li {
-  background-color: white;
-  padding: 8px;
+  background-color: rgb(60, 60, 60); /* Slightly lighter tile */
+  padding: 12px;
+  color: rgb(230, 230, 230); /* Light text */
+  transition: background 0.3s ease-in-out;
 }
 
 li:hover {
-  background: #dadbf9;
+  background: rgb(70, 110, 160); /* Muted blue hover */
+  color: white; /* Ensure contrast */
+  transform: scale(1.02); /* Slight hover scale */
 }
 
+/* Links */
 a {
   font-weight: 800;
+  color: rgb(70, 110, 160); /* Muted blue links */
   text-decoration: none;
+  transition: color 0.25s ease-in-out;
+}
+
+a:hover {
+  color: rgb(90, 130, 180); /* Slightly brighter blue on hover */
+}
+
+/* Callouts */
+.callout {
+  background-color: rgb(112, 128, 144); /* Slightly lighter gray */
+  border-left: 4px solid rgb(70, 110, 160); /* Blue accent */
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 8px;
+  color: rgb(230, 230, 230);
+  font-size: 1rem;
 }
