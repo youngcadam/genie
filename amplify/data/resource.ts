@@ -14,7 +14,7 @@ const schema = a.schema({
       batchSize: a.integer(),
       status: a.string().default("pending"),
       imageKey: a.string(),
-      createdAt: a.timestamp().default(() => Math.floor(Date.now() / 1000)), // Corrected default value
+      createdAt: a.timestamp().default(0), // Placeholder value
       updatedAt: a.timestamp(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
