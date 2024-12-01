@@ -45,6 +45,9 @@ export default function App() {
           imageKey: uniqueImageKey,
       });
 
+      if (response.errors) {
+        console.log("Error invoking Lambda:", response.errors);
+      }
       if (response.data && !response.errors) {
         setStatus("Task submitted successfully! Polling for result...");
         // Simulate waiting for an image (replace with polling logic)
