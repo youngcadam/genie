@@ -33,8 +33,9 @@ const schema = a.schema({
       imageKey: a.string(),
     })
     .returns(a.string())
-    .handler(a.handler.function("task")),
-})
+    .handler(a.handler.function("task"))
+    .authorization((allow) => [allow.publicApiKey()]), // Add authorization rule here
+});
 
 export type Schema = ClientSchema<typeof schema>;
 
