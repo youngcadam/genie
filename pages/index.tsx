@@ -1,9 +1,17 @@
 import { useState } from "react";
+import { Amplify } from 'aws-amplify';
 import { Authenticator } from "@aws-amplify/ui-react";
+import { generateClient } from 'aws-amplify/data';
+import type { Schema } from '../amplify/data/resource';
+import outputs from '../amplify_outputs.json';
 import "@aws-amplify/ui-react/styles.css";
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
+
+Amplify.configure(outputs);
+
+const client = generateClient<Schema>();
 
 export default function App() {
   const [positivePrompt, setPositivePrompt] = useState<string>("");
@@ -21,14 +29,36 @@ export default function App() {
   // Placeholder for task submission (to be implemented)
   async function submitTask() {
     const uniqueImageKey = `${uuidv4()}.png`;
-    setStatus("Task submitted! Polling for result...");
-    console.log("Unique Image Key:", uniqueImageKey);
+    setStatus("Submitting task...");
 
-    // Simulate waiting for an image (replace with polling logic)
-    setTimeout(() => {
-      setImageUrl("/placeholder-image.png"); // Replace with actual image URL from S3
-      setStatus("Task completed! Image ready.");
-    }, 5000); // Simulate 5-second delay
+    try {
+      const response = await client.queries.taskQuery({
+          positivePrompt,
+          negativePrompt,
+          steps,
+          width,
+          height,
+          sampler,
+          seed,
+          cfgScale,
+          batchSize,
+          imageKey: uniqueImageKey,
+      });
+
+      if (response.data && !response.errors) {
+        setStatus("Task submitted successfully! Polling for result...");
+        // Simulate waiting for an image (replace with polling logic)
+        setTimeout(() => {
+          setImageUrl("/placeholder-image.png"); // Replace with actual S3 image URL
+          setStatus("Task completed! Image ready.");
+        }, 5000); // Simulate a 5-second delay
+      } else {
+        setStatus("Failed to submit task.");
+      }
+    } catch (error) {
+      console.error("Error invoking Lambda:", error);
+      setStatus("An error occurred while submitting the task.");
+    }
   }
 
   return (
