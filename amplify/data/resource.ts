@@ -14,7 +14,7 @@ const schema = a.schema({
       batchSize: a.integer(),
       status: a.string().default("pending"),
       imageKey: a.string(),
-      createdAt: a.timestamp().default(() => new Date().toISOString()),
+      createdAt: a.timestamp().default(() => Math.floor(Date.now() / 1000)), // Corrected default value
       updatedAt: a.timestamp(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
@@ -34,7 +34,7 @@ const schema = a.schema({
     })
     .returns(a.string())
     .handler(a.handler.function("task"))
-    .authorization((allow) => [allow.publicApiKey()]), // Add authorization rule here
+    .authorization((allow) => [allow.publicApiKey()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
