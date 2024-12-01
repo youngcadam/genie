@@ -33,7 +33,7 @@ const schema = a.schema({
       imageKey: a.string(),
     })
     .returns(a.string())
-    .handler(a.handler.function("task"))
+    .handler(a.handler.function("amplify-d339tp8pyqyfic-main-bra-tasklambdaF0E26443-faHkN2BWyOf1"))
     .authorization((allow) => [allow.publicApiKey()]),
 });
 
