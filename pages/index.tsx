@@ -31,32 +31,71 @@ export default function App() {
     const uniqueImageKey = `${uuidv4()}.png`;
     setStatus("Submitting task...");
 
+    const taskArguments = {
+      positivePrompt: positivePrompt || "",
+      negativePrompt: negativePrompt || "",
+      steps: steps || 50,
+      width: width || 1024,
+      height: height || 1024,
+      sampler: sampler || "Euler",
+      seed: seed || "random-seed",
+      cfgScale: cfgScale || 7.5,
+      batchSize: batchSize || 1,
+      imageKey: uniqueImageKey,
+    };
+
+    console.log("Prepared task arguments:", taskArguments);
+
     try {
-      const response = await client.queries.taskQuery({
-          positivePrompt,
-          negativePrompt,
-          steps,
-          width,
-          height,
-          sampler,
-          seed,
-          cfgScale,
-          batchSize,
-          imageKey: uniqueImageKey,
-      });
+      // Send the taskArguments to the query
+      const response = await client.queries.taskQuery(taskArguments);
+
+      console.log("Response from taskQuery:", response);
 
       if (response.errors) {
-        console.log("Error invoking Lambda:", response.errors);
+        console.error("Error invoking taskQuery:", response.errors);
+        setStatus("Failed to submit task. Check console for errors.");
+        return;
       }
-      if (response.data && !response.errors) {
+
+      if (response.data) {
         setStatus("Task submitted successfully! Polling for result...");
-        // Simulate waiting for an image (replace with polling logic)
-        setTimeout(() => {
-          setImageUrl("/placeholder-image.png"); // Replace with actual S3 image URL
-          setStatus("Task completed! Image ready.");
-        }, 5000); // Simulate a 5-second delay
+
+        // Poll S3 for the image
+        const bucketUrl = `https://generated-images-amplify.s3.us-west-2.amazonaws.com`;
+        const imageUrl = `${bucketUrl}/${uniqueImageKey}`;
+  
+        const pollInterval = 8000; // 3 seconds
+        const maxAttempts = 30; // Give up after 30 attempts (90 seconds)
+        let attempts = 0;
+  
+        const pollS3 = async () => {
+          try {
+            const response = await fetch(imageUrl, { method: "HEAD" });
+  
+            if (response.ok) {
+              setImageUrl(imageUrl);
+              setStatus("Task completed! Image ready.");
+            } else if (attempts < maxAttempts) {
+              attempts++;
+              setTimeout(pollS3, pollInterval);
+            } else {
+              setStatus("Failed to retrieve the generated image. Timeout reached.");
+            }
+          } catch (error) {
+            console.error("Error polling S3:", error);
+            if (attempts < maxAttempts) {
+              attempts++;
+              setTimeout(pollS3, pollInterval);
+            } else {
+              setStatus("Failed to retrieve the generated image. Timeout reached.");
+            }
+          }
+        };
+
+        pollS3();
       } else {
-        setStatus("Failed to submit task.");
+        setStatus("Failed to submit task. No data returned.");
       }
     } catch (error) {
       console.error("Error invoking Lambda:", error);
