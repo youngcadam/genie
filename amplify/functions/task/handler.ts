@@ -1,29 +1,39 @@
 import { SQS } from 'aws-sdk';
+import type { AppSyncResolverEvent } from 'aws-lambda';
+
+// Define the arguments type based on your schema
+interface TaskArguments {
+  positivePrompt: string;
+  negativePrompt?: string;
+  steps: number;
+  width: number;
+  height: number;
+  sampler: string;
+  seed?: string;
+  cfgScale: number;
+  batchSize: number;
+  imageKey: string;
+}
 
 const sqs = new SQS();
 
-export const handler = async (event) => {
+export const handler = async (event: AppSyncResolverEvent<TaskArguments>) => {
   console.log("Received event:", JSON.stringify(event, null, 2));
 
   try {
     // Extract arguments from the event
     const {
       positivePrompt,
-      negativePrompt,
+      negativePrompt = "",
       steps,
       width,
       height,
       sampler,
-      seed,
+      seed = "",
       cfgScale,
       batchSize,
       imageKey
-    } = event.arguments || {};
-
-    // Ensure all required fields are present
-    if (!positivePrompt || !steps || !width || !height || !sampler || !cfgScale || !batchSize || !imageKey) {
-      throw new Error("Missing required arguments.");
-    }
+    } = event.arguments;
 
     const queueUrl = process.env.QUEUE_URL;
     if (!queueUrl) {
@@ -43,7 +53,7 @@ export const handler = async (event) => {
         seed,
         cfgScale,
         batchSize,
-        imageKey
+        imageKey,
       }),
     };
 
@@ -57,11 +67,15 @@ export const handler = async (event) => {
       body: JSON.stringify({ success: true, message: 'Task submitted successfully!' }),
     };
   } catch (error) {
-    console.error("Error in Lambda function:", error.message);
+    console.error("Error in Lambda function:", (error as Error).message);
 
     return {
       statusCode: 500,
-      body: JSON.stringify({ success: false, error: 'Failed to submit task.', details: error.message }),
+      body: JSON.stringify({ 
+        success: false, 
+        error: 'Failed to submit task.', 
+        details: (error as Error).message 
+      }),
     };
   }
 };
