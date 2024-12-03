@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Amplify } from 'aws-amplify';
+import { Amplify } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
-import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '../amplify/data/resource';
-import outputs from '../amplify_outputs.json';
+import { generateClient } from "aws-amplify/data";
+import type { Schema } from "../amplify/data/resource";
+import outputs from "../amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -26,7 +26,6 @@ export default function App() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("");
 
-  // Placeholder for task submission (to be implemented)
   async function submitTask() {
     const uniqueImageKey = `${uuidv4()}.png`;
     setStatus("Submitting task...");
@@ -47,9 +46,7 @@ export default function App() {
     console.log("Prepared task arguments:", taskArguments);
 
     try {
-      // Send the taskArguments to the query
       const response = await client.queries.taskQuery(taskArguments);
-
       console.log("Response from taskQuery:", response);
 
       if (response.errors) {
@@ -60,36 +57,30 @@ export default function App() {
 
       if (response.data) {
         setStatus("Task submitted successfully! Polling for result...");
-
-        // Poll S3 for the image
         const bucketUrl = `https://generated-images-amplify.s3.us-west-2.amazonaws.com`;
         const imageUrl = `${bucketUrl}/${uniqueImageKey}`;
-  
-        const pollInterval = 8000; // 3 seconds
-        const maxAttempts = 30; // Give up after 30 attempts (90 seconds)
+
+        const pollInterval = 8000; // Poll every 8 seconds
+        const maxAttempts = 30; // Max attempts
         let attempts = 0;
-  
+
         const pollS3 = async () => {
           try {
             const response = await fetch(imageUrl, { method: "HEAD" });
-  
             if (response.ok) {
               setImageUrl(imageUrl);
               setStatus("Task completed! Image ready.");
-            } else if (attempts < maxAttempts) {
-              attempts++;
-              setTimeout(pollS3, pollInterval);
-            } else {
-              setStatus("Failed to retrieve the generated image. Timeout reached.");
+              return;
             }
           } catch (error) {
             console.error("Error polling S3:", error);
-            if (attempts < maxAttempts) {
-              attempts++;
-              setTimeout(pollS3, pollInterval);
-            } else {
-              setStatus("Failed to retrieve the generated image. Timeout reached.");
-            }
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(pollS3, pollInterval);
+          } else {
+            setStatus("Failed to retrieve the generated image. Timeout reached.");
           }
         };
 
@@ -115,7 +106,6 @@ export default function App() {
           color: "white",
         }}
       >
-        {/* Left Section: Prompts and Settings */}
         <section
           style={{
             flex: "1",
@@ -171,100 +161,6 @@ export default function App() {
               />
             </label>
           </div>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            <label style={{ flex: "1" }}>
-              Steps:
-              <input
-                type="number"
-                value={steps}
-                onChange={(e) => setSteps(Number(e.target.value))}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  fontSize: "14px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  backgroundColor: "rgb(60, 60, 60)",
-                  color: "white",
-                }}
-              />
-            </label>
-            <label style={{ flex: "1" }}>
-              Width:
-              <input
-                type="number"
-                value={width}
-                onChange={(e) => setWidth(Number(e.target.value))}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  fontSize: "14px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  backgroundColor: "rgb(60, 60, 60)",
-                  color: "white",
-                }}
-              />
-            </label>
-            <label style={{ flex: "1" }}>
-              Height:
-              <input
-                type="number"
-                value={height}
-                onChange={(e) => setHeight(Number(e.target.value))}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  fontSize: "14px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  backgroundColor: "rgb(60, 60, 60)",
-                  color: "white",
-                }}
-              />
-            </label>
-          </div>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            <label style={{ flex: "1" }}>
-              Sampler:
-              <select
-                value={sampler}
-                onChange={(e) => setSampler(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  fontSize: "14px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  backgroundColor: "rgb(60, 60, 60)",
-                  color: "white",
-                }}
-              >
-                <option value="Euler">Euler</option>
-                <option value="LMS">LMS</option>
-                <option value="DDIM">DDIM</option>
-                <option value="PLMS">PLMS</option>
-              </select>
-            </label>
-            <label style={{ flex: "1" }}>
-              Seed:
-              <input
-                type="text"
-                value={seed}
-                onChange={(e) => setSeed(e.target.value)}
-                placeholder="Leave empty for random"
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  fontSize: "14px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  backgroundColor: "rgb(60, 60, 60)",
-                  color: "white",
-                }}
-              />
-            </label>
-          </div>
           <button
             onClick={submitTask}
             style={{
@@ -283,7 +179,6 @@ export default function App() {
           <p style={{ textAlign: "center" }}>{status}</p>
         </section>
 
-        {/* Right Section: Image Output */}
         <section
           style={{
             flex: "1",
@@ -298,13 +193,12 @@ export default function App() {
           }}
         >
           {imageUrl ? (
-            <Image
+            <img
               src={imageUrl}
               alt="Generated result"
-              layout="responsive"
-              width={1024}
-              height={1024}
               style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
                 borderRadius: "8px",
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
               }}
